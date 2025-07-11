@@ -1,0 +1,2083 @@
+<option value="lbs" ${existingRecord?.weight_unit === 'lbs' ? 'selected' : ''}>lbs</option>
+                                                <option value="grams" ${existingRecord?.weight_unit === 'grams' ? 'selected' : ''}>g</option>
+                                                <option value="oz" ${existingRecord?.weight_unit === 'oz' ? 'selected' : ''}>oz</option>
+                                                <option value="kg" ${existingRecord?.weight_unit === 'kg' ? 'selected' : ''}>kg</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Price per Pound</label>
+                                        <input type="number" step="0.01" name="price_per_pound" value="${existingRecord?.price_per_pound || settings.pricePerPound}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Invoice Number</label>
+                                        <input type="text" name="invoice_number" value="${existingRecord?.invoice_number || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">Payment Information</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                                        <select name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="">Select Method</option>
+                                            <option value="Check" ${existingRecord?.payment_method === 'Check' ? 'selected' : ''}>Check</option>
+                                            <option value="Cash" ${existingRecord?.payment_method === 'Cash' ? 'selected' : ''}>Cash</option>
+                                            <option value="ACH" ${existingRecord?.payment_method === 'ACH' ? 'selected' : ''}>ACH</option>
+                                            <option value="Wire" ${existingRecord?.payment_method === 'Wire' ? 'selected' : ''}>Wire</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Details</label>
+                                        <input type="text" name="payment_details" value="${existingRecord?.payment_details || ''}" placeholder="Check #, Amount, Reference #, etc." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+                                        <select name="paid_status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="Not Paid" ${existingRecord?.paid_status === 'Not Paid' ? 'selected' : ''}>Not Paid</option>
+                                            <option value="Paid" ${existingRecord?.paid_status === 'Paid' ? 'selected' : ''}>Paid</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Paid Date</label>
+                                        <input type="date" name="paid_date" value="${existingRecord?.paid_date || ''}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">Testing & Compliance</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Lab</label>
+                                        <input type="text" name="lab" value="${existingRecord?.lab || ''}" list="lab-options" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tests Failed</label>
+                                        <input type="text" name="tests_failed" value="${existingRecord?.tests_failed || ''}" list="tests-failed-options" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Compliance Status</label>
+                                        <select name="compliance_status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="Not Set" ${existingRecord?.compliance_status === 'Not Set' ? 'selected' : ''}>Not Set</option>
+                                            <option value="Passed Testing" ${existingRecord?.compliance_status === 'Passed Testing' ? 'selected' : ''}>Passed Testing</option>
+                                            <option value="Failed Testing" ${existingRecord?.compliance_status === 'Failed Testing' ? 'selected' : ''}>Failed Testing</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center gap-2 mt-6">
+                                            <input type="checkbox" name="xray_completed" ${existingRecord?.xray_completed ? 'checked' : ''} class="rounded">
+                                            <span class="text-sm font-medium text-gray-700">X-Ray Completed</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="form-errors" class="hidden bg-red-50 border border-red-200 rounded-md p-3">
+                                <p class="text-sm text-red-800 font-medium">Please fix the following errors:</p>
+                                <ul class="list-disc list-inside text-sm text-red-700 mt-1"></ul>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3 pt-4 border-t">
+                                <button type="button" onclick="this                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h3 class="font-semibold text-gray-700 mb-2">Customer Information</h3>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-600">Customer:</span> <span class="font-medium">${record.customer}</span></div>
+                                    <div><span class="text-gray-600">Invoice To:</span> <span class="font-medium">${record.invoice_to}</span></div>
+                                    <div><span class="text-gray-600">METRC Tag:</span> <span class="font-mono">${record.metrc_tag}</span></div>
+                                    <div><span class="text-gray-600">Date Created:</span> <span class="font-medium">${record.date_created}</span></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="font-semibold text-gray-700 mb-2">Weight & Pricing</h3>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-600">Input Weight:</span> <span class="font-medium">${record.weight_input_value} ${record.weight_unit}</span></div>
+                                    <div><span class="text-gray-600">Invoice Weight:</span> <span class="font-medium">${record.invoice_weight} lbs</span></div>
+                                    <div><span class="text-gray-600">Price/lb:</span> <span class="font-medium">${record.price_per_pound || settings.pricePerPound}</span></div>
+                                    <div><span class="text-gray-600">Total:</span> <span class="font-medium text-green-600">${record.total_amount || '0.00'}</span></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="font-semibold text-gray-700 mb-2">Payment Information</h3>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-600">Invoice #:</span> <span class="font-medium">${record.invoice_number || 'Not set'}</span></div>
+                                    <div><span class="text-gray-600">Payment Method:</span> <span class="font-medium">${record.payment_method || 'Not set'}</span></div>
+                                    <div><span class="text-gray-600">Payment Details:</span> <span class="font-medium">${record.payment_details || 'Not set'}</span></div>
+                                    <div><span class="text-gray-600">Status:</span> <span class="font-medium ${record.paid_status === 'Paid' ? 'text-green-600' : 'text-red-600'}">${record.paid_status}</span></div>
+                                    <div><span class="text-gray-600">Paid Date:</span> <span class="font-medium">${record.paid_date || 'Not paid'}</span></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="font-semibold text-gray-700 mb-2">Testing & Compliance</h3>
+                                <div class="space-y-2 text-sm">
+                                    <div><span class="text-gray-600">Lab:</span> <span class="font-medium">${record.lab || 'Not set'}</span></div>
+                                    <div><span class="text-gray-600">Tests Failed:</span> <span class="font-medium">${record.tests_failed || 'None'}</span></div>
+                                    <div><span class="text-gray-600">Compliance:</span> <span class="font-medium ${record.compliance_status?.includes('Passed') ? 'text-green-600' : record.compliance_status?.includes('Failed') ? 'text-red-600' : ''}">${record.compliance_status}</span></div>
+                                    <div><span class="text-gray-600">X-Ray Date:</span> <span class="font-medium">${record.xray_date || 'Not scheduled'}</span></div>
+                                    <div><span class="text-gray-600">X-Ray Status:</span> <span class="font-medium ${record.xray_completed ? 'text-green-600' : ''}">${record.xray_completed ? 'Completed ✓' : 'Pending'}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 flex justify-end gap-3">
+                            <button onclick="editRecord(${record.id}); this.closest('.fixed').remove()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Edit Record
+                            </button>
+                            <button onclick="this.closest('.fixed').remove()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `
+            document.body.appendChild(modal)
+        }
+
+        // Enhanced Add/Edit Record Modal
+        function showAddRecordModal(existingRecord = null) {
+            const isEdit = !!existingRecord
+            const modal = document.createElement('div')
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop'
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto slide-in">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900">${isEdit ? 'Edit' : 'Add New'} Record</h2>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <form id="record-form" class="space-y-6">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">Customer Information</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
+                                        <input type="text" name="customer" value="${existingRecord?.customer || ''}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Invoice To</label>
+                                        <input type="text" name="invoice_to" value="${existingRecord?.invoice_to || ''}" list="invoice-to-options" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">METRC Tag *</label>
+                                        <input type="text" name="metrc_tag" value="${existingRecord?.metrc_tag || ''}" required pattern="^1A40D03[0-9]{16}$" title="Format: 1A40D03 followed by 16 digits" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Date Created</label>
+                                        <input type="date" name="date_created" value="${existingRecord?.date_created || new Date().toISOString().split('T')[0]}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900 mb-3">Weight & Pricing</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Weight *</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" step="0.01" name="weight_value" value="${existingRecord?.weight_input_value || ''}" required class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                            <select name="weight_unit" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option value="lbs" ${                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                                                    class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.metrc_tag || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'metrc_tag', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[160px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" />
+                    </td>
+                    <td class="px-4 py-3">
+                        ${createWeightInput(record, 'test-')}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 font-medium">
+                            ${parseFloat(record.invoice_weight || 0).toFixed(2)} lbs
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.tests_failed || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'tests_failed', this.value)"
+                            list="tests-failed-options"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.lab || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'lab', this.value)"
+                            list="lab-options"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <select onchange="updateRecordField(${record.id}, 'compliance_status', this.value)" 
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${record.compliance_status?.includes('Passed') ? 'bg-green-50 text-green-800' : record.compliance_status?.includes('Failed') ? 'bg-red-50 text-red-800' : 'bg-white'}">
+                            <option value="Not Set" ${record.compliance_status === 'Not Set' ? 'selected' : ''}>Not Set</option>
+                            <option value="Passed Testing" ${record.compliance_status === 'Passed Testing' ? 'selected' : ''}>Passed Testing</option>
+                            <option value="Failed Testing" ${record.compliance_status === 'Failed Testing' ? 'selected' : ''}>Failed Testing</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="text-sm">
+                            ${xrayInfo ? `
+                                <div class="${record.xray_completed ? 'text-green-600' : 'text-blue-600'}">
+                                    ${xrayInfo}
+                                    ${record.xray_completed ? ' ✓' : ''}
+                                </div>
+                            ` : '<span class="text-gray-400">Not scheduled</span>'}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex gap-1">
+                            <button onclick="editRecord(${record.id})" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">
+                                Edit
+                            </button>
+                            <button onclick="deleteRecord(${record.id})" class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                `
+            }).join('')
+
+            // Add datalists for autocomplete
+            if (!document.getElementById('tests-failed-options')) {
+                const testsDatalist = document.createElement('datalist')
+                testsDatalist.id = 'tests-failed-options'
+                testsDatalist.innerHTML = dropdownOptions.testsFailed.map(opt => 
+                    `<option value="${opt}">`
+                ).join('')
+                document.body.appendChild(testsDatalist)
+            }
+
+            if (!document.getElementById('lab-options')) {
+                const labDatalist = document.createElement('datalist')
+                labDatalist.id = 'lab-options'
+                labDatalist.innerHTML = dropdownOptions.labs.map(opt => 
+                    `<option value="${opt}">`
+                ).join('')
+                document.body.appendChild(labDatalist)
+            }
+        }
+
+        // Enhanced X-Ray Schedule with Drag and Drop
+        function updateXraySchedule() {
+            xraySchedule = {}
+            
+            const sortedRecords = [...dashboardData].sort((a, b) => {
+                const dateA = new Date(a.date_created)
+                const dateB = new Date(b.date_created)
+                if (dateA.getTime() === dateB.getTime()) {
+                    return a.id - b.id
+                }
+                return dateA - dateB
+            })
+            
+            let currentDate = new Date()
+            let currentSlot = 0
+            
+            sortedRecords.forEach(record => {
+                // If record already has an xray_date, preserve it
+                if (record.xray_date) {
+                    const dateKey = record.xray_date
+                    if (!xraySchedule[dateKey]) {
+                        xraySchedule[dateKey] = { slot1: null, slot2: null }
+                    }
+                    
+                    // Find available slot on that date
+                    if (!xraySchedule[dateKey].slot1) {
+                        xraySchedule[dateKey].slot1 = createScheduleEntry(record)
+                    } else if (!xraySchedule[dateKey].slot2) {
+                        xraySchedule[dateKey].slot2 = createScheduleEntry(record)
+                    }
+                    return
+                }
+                
+                // Skip Sundays for new assignments
+                while (currentDate.getDay() === 0) {
+                    currentDate.setDate(currentDate.getDate() + 1)
+                    currentSlot = 0
+                }
+                
+                const dateKey = currentDate.toISOString().split('T')[0]
+                
+                if (!xraySchedule[dateKey]) {
+                    xraySchedule[dateKey] = { slot1: null, slot2: null }
+                }
+                
+                if (currentSlot === 0) {
+                    xraySchedule[dateKey].slot1 = createScheduleEntry(record)
+                    record.xray_date = dateKey
+                    currentSlot = 1
+                } else {
+                    xraySchedule[dateKey].slot2 = createScheduleEntry(record)
+                    record.xray_date = dateKey
+                    currentDate.setDate(currentDate.getDate() + 1)
+                    currentSlot = 0
+                }
+            })
+            
+            saveToLocalStorage()
+        }
+
+        function createScheduleEntry(record) {
+            return {
+                customer: record.customer,
+                metrcTag: record.metrc_tag,
+                weight: record.invoice_weight,
+                recordId: record.id,
+                completed: record.xray_completed || false,
+                compliance: record.compliance_status
+            }
+        }
+
+        function getXrayDateForRecord(recordId) {
+            for (const [date, schedule] of Object.entries(xraySchedule)) {
+                if (schedule.slot1?.recordId === recordId || schedule.slot2?.recordId === recordId) {
+                    return date
+                }
+            }
+            return null
+        }
+
+        // Enhanced Calendar View with Drag and Drop
+        function updateCalendarView() {
+            const year = currentCalendarDate.getFullYear()
+            const month = currentCalendarDate.getMonth()
+            
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December']
+            document.getElementById('calendar-month-year').textContent = `${monthNames[month]} ${year}`
+            
+            const firstDay = new Date(year, month, 1)
+            const lastDay = new Date(year, month + 1, 0)
+            const daysInMonth = lastDay.getDate()
+            const startingDayOfWeek = firstDay.getDay()
+            
+            const calendarGrid = document.getElementById('calendar-grid')
+            calendarGrid.innerHTML = ''
+            
+            const showCompleted = document.getElementById('show-completed')?.checked || false
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const emptyCell = document.createElement('div')
+                emptyCell.className = 'h-32 bg-gray-50 border border-gray-200 rounded'
+                calendarGrid.appendChild(emptyCell)
+            }
+            
+            // Add cells for each day of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day)
+                const dateKey = date.toISOString().split('T')[0]
+                const isSunday = date.getDay() === 0
+                const isWorkDay = date.getDay() >= 1 && date.getDay() <= 6
+                const isToday = dateKey === new Date().toISOString().split('T')[0]
+                
+                const dayCell = document.createElement('div')
+                dayCell.className = `h-32 border border-gray-200 rounded p-2 ${
+                    isSunday ? 'bg-gray-100' : 'bg-white'
+                } ${isToday ? 'ring-2 ring-blue-500' : ''}`
+                
+                dayCell.ondrop = (e) => handleDrop(e, dateKey)
+                dayCell.ondragover = (e) => handleDragOver(e)
+                dayCell.ondragleave = (e) => handleDragLeave(e)
+                
+                // Day number
+                const dayNumber = document.createElement('div')
+                dayNumber.className = `text-sm font-medium mb-1 ${
+                    isToday ? 'text-blue-600' : 'text-gray-900'
+                }`
+                dayNumber.textContent = day
+                dayCell.appendChild(dayNumber)
+                
+                // X-Ray slots (Monday-Saturday)
+                if (isWorkDay && xraySchedule[dateKey]) {
+                    const schedule = xraySchedule[dateKey]
+                    
+                    // Slot 1
+                    if (schedule.slot1) {
+                        if (!showCompleted && schedule.slot1.completed) {
+                            // Skip completed if not showing
+                        } else {
+                            const slot1 = createCalendarSlot(schedule.slot1, 1, dateKey)
+                            dayCell.appendChild(slot1)
+                        }
+                    } else {
+                        const emptySlot1 = createEmptySlot(1, dateKey)
+                        dayCell.appendChild(emptySlot1)
+                    }
+                    
+                    // Slot 2
+                    if (schedule.slot2) {
+                        if (!showCompleted && schedule.slot2.completed) {
+                            // Skip completed if not showing
+                        } else {
+                            const slot2 = createCalendarSlot(schedule.slot2, 2, dateKey)
+                            dayCell.appendChild(slot2)
+                        }
+                    } else {
+                        const emptySlot2 = createEmptySlot(2, dateKey)
+                        dayCell.appendChild(emptySlot2)
+                    }
+                } else if (isWorkDay) {
+                    // Show empty slots for work days with no scheduled X-rays
+                    dayCell.appendChild(createEmptySlot(1, dateKey))
+                    dayCell.appendChild(createEmptySlot(2, dateKey))
+                } else {
+                    // Sunday - show closed
+                    const closedDiv = document.createElement('div')
+                    closedDiv.className = 'text-xs text-gray-400 p-1 text-center'
+                    closedDiv.textContent = 'Closed (Sunday)'
+                    dayCell.appendChild(closedDiv)
+                }
+                
+                calendarGrid.appendChild(dayCell)
+            }
+        }
+
+        function createCalendarSlot(slotData, slotNumber, dateKey) {
+            const slot = document.createElement('div')
+            const bgColor = slotData.completed ? 'bg-gray-200' : slotNumber === 1 ? 'bg-blue-100' : 'bg-green-100'
+            const textColor = slotData.completed ? 'text-gray-600' : slotNumber === 1 ? 'text-blue-800' : 'text-green-800'
+            
+            slot.className = `text-xs ${bgColor} ${textColor} p-1 rounded mb-1 truncate cursor-pointer hover:opacity-80`
+            slot.draggable = !slotData.completed
+            slot.innerHTML = `
+                <div class="font-medium">🔬 Slot ${slotNumber} ${slotData.completed ? '✓' : ''}</div>
+                <div class="font-semibold">${slotData.customer}</div>
+            `
+            slot.title = `Customer: ${slotData.customer}\nMETRC: ${slotData.metrcTag}\nWeight: ${slotData.weight} lbs\nStatus: ${slotData.compliance || 'Not Set'}`
+            
+            slot.ondragstart = (e) => handleDragStart(e, slotData.recordId, dateKey, slotNumber)
+            slot.onclick = () => showRecordDetails(slotData.recordId)
+            
+            return slot
+        }
+
+        function createEmptySlot(slotNumber, dateKey) {
+            const emptySlot = document.createElement('div')
+            emptySlot.className = 'text-xs bg-gray-100 text-gray-500 p-1 rounded mb-1'
+            emptySlot.innerHTML = `<div class="font-medium">🔬 Slot ${slotNumber}</div><div>Available</div>`
+            emptySlot.setAttribute('data-date', dateKey)
+            emptySlot.setAttribute('data-slot', slotNumber)
+            return emptySlot
+        }
+
+        // Drag and Drop Handlers
+        let draggedRecordId = null
+        let draggedFromDate = null
+        let draggedFromSlot = null
+
+        function handleDragStart(e, recordId, date, slot) {
+            draggedRecordId = recordId
+            draggedFromDate = date
+            draggedFromSlot = slot
+            e.target.classList.add('dragging')
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault()
+            e.currentTarget.classList.add('drag-over')
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over')
+        }
+
+        function handleDrop(e, targetDate) {
+            e.preventDefault()
+            e.currentTarget.classList.remove('drag-over')
+            
+            if (!draggedRecordId || !targetDate) return
+            
+            // Check if target date is a Sunday
+            const date = new Date(targetDate)
+            if (date.getDay() === 0) {
+                showToast('Cannot schedule X-rays on Sundays', 'warning')
+                return
+            }
+            
+            // Find the record
+            const record = dashboardData.find(r => r.id === draggedRecordId)
+            if (!record) return
+            
+            // Remove from old schedule
+            if (xraySchedule[draggedFromDate]) {
+                if (xraySchedule[draggedFromDate].slot1?.recordId === draggedRecordId) {
+                    xraySchedule[draggedFromDate].slot1 = null
+                } else if (xraySchedule[draggedFromDate].slot2?.recordId === draggedRecordId) {
+                    xraySchedule[draggedFromDate].slot2 = null
+                }
+            }
+            
+            // Add to new schedule
+            if (!xraySchedule[targetDate]) {
+                xraySchedule[targetDate] = { slot1: null, slot2: null }
+            }
+            
+            // Find available slot
+            if (!xraySchedule[targetDate].slot1) {
+                xraySchedule[targetDate].slot1 = createScheduleEntry(record)
+                record.xray_date = targetDate
+            } else if (!xraySchedule[targetDate].slot2) {
+                xraySchedule[targetDate].slot2 = createScheduleEntry(record)
+                record.xray_date = targetDate
+            } else {
+                showToast('Both slots are occupied on this date', 'warning')
+                // Restore to original position
+                if (!xraySchedule[draggedFromDate]) {
+                    xraySchedule[draggedFromDate] = { slot1: null, slot2: null }
+                }
+                if (draggedFromSlot === 1) {
+                    xraySchedule[draggedFromDate].slot1 = createScheduleEntry(record)
+                } else {
+                    xraySchedule[draggedFromDate].slot2 = createScheduleEntry(record)
+                }
+                return
+            }
+            
+            // Clear dragging state
+            document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'))
+            draggedRecordId = null
+            draggedFromDate = null
+            draggedFromSlot = null
+            
+            updateCalendarView()
+            saveToLocalStorage()
+            addAuditEntry('RESCHEDULE', record.id, `X-ray rescheduled from ${draggedFromDate} to ${targetDate}`)
+            showToast('X-ray appointment rescheduled', 'success')
+        }
+
+        // Reports and Analytics
+        function updateReports() {
+            updateSummaryReport()
+            updateComplianceChart()
+            updateCustomerReport()
+            updateLabChart()
+        }
+
+        function updateSummaryReport() {
+            const totalRevenue = dashboardData.reduce((sum, r) => sum + parseFloat(r.total_amount || 0), 0)
+            const paidRevenue = dashboardData.filter(r => r.paid_status === 'Paid')
+                .reduce((sum, r) => sum + parseFloat(r.total_amount || 0), 0)
+            const avgWeight = dashboardData.reduce((sum, r) => sum + parseFloat(r.invoice_weight || 0), 0) / dashboardData.length || 0
+            
+            const summaryHtml = `
+                <div class="flex justify-between py-2 border-b">
+                    <span class="text-gray-600">Total Records:</span>
+                    <span class="font-semibold">${dashboardData.length}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b">
+                    <span class="text-gray-600">Total Revenue:</span>
+                    <span class="font-semibold text-green-600">${totalRevenue.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b">
+                    <span class="text-gray-600">Paid Revenue:</span>
+                    <span class="font-semibold text-green-600">${paidRevenue.toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b">
+                    <span class="text-gray-600">Outstanding:</span>
+                    <span class="font-semibold text-red-600">${(totalRevenue - paidRevenue).toFixed(2)}</span>
+                </div>
+                <div class="flex justify-between py-2 border-b">
+                    <span class="text-gray-600">Average Weight:</span>
+                    <span class="font-semibold">${avgWeight.toFixed(2)} lbs</span>
+                </div>
+                <div class="flex justify-between py-2">
+                    <span class="text-gray-600">Collection Rate:</span>
+                    <span class="font-semibold">${totalRevenue > 0 ? ((paidRevenue / totalRevenue) * 100).toFixed(1) : 0}%</span>
+                </div>
+            `
+            
+            document.getElementById('summary-report').innerHTML = summaryHtml
+        }
+
+        function updateComplianceChart() {
+            const ctx = document.getElementById('compliance-chart')
+            if (!ctx) return
+            
+            const passed = dashboardData.filter(r => r.compliance_status?.includes('Passed')).length
+            const failed = dashboardData.filter(r => r.compliance_status?.includes('Failed')).length
+            const pending = dashboardData.filter(r => r.compliance_status === 'Not Set' || !r.compliance_status).length
+            
+            // Destroy existing chart if it exists
+            if (window.complianceChart) {
+                window.complianceChart.destroy()
+            }
+            
+            window.complianceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Passed', 'Failed', 'Pending'],
+                    datasets: [{
+                        data: [passed, failed, pending],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            })
+        }
+
+        function updateCustomerReport() {
+            const customerTotals = {}
+            
+            dashboardData.forEach(record => {
+                const customer = record.customer || 'Unknown'
+                if (!customerTotals[customer]) {
+                    customerTotals[customer] = {
+                        total: 0,
+                        paid: 0,
+                        count: 0
+                    }
+                }
+                customerTotals[customer].total += parseFloat(record.total_amount || 0)
+                if (record.paid_status === 'Paid') {
+                    customerTotals[customer].paid += parseFloat(record.total_amount || 0)
+                }
+                customerTotals[customer].count++
+            })
+            
+            const sortedCustomers = Object.entries(customerTotals)
+                .sort((a, b) => b[1].total - a[1].total)
+                .slice(0, 5)
+            
+            const reportHtml = sortedCustomers.map(([customer, data]) => `
+                <div class="bg-white p-3 rounded border mb-2">
+                    <div class="font-semibold text-sm">${customer}</div>
+                    <div class="text-xs text-gray-600 mt-1">
+                        <span>Total: ${data.total.toFixed(2)}</span> | 
+                        <span>Paid: ${data.paid.toFixed(2)}</span> | 
+                        <span>Orders: ${data.count}</span>
+                    </div>
+                    <div class="mt-2 bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full" style="width: ${data.total > 0 ? (data.paid / data.total * 100) : 0}%"></div>
+                    </div>
+                </div>
+            `).join('')
+            
+            document.getElementById('customer-report').innerHTML = reportHtml || '<p class="text-gray-500">No customer data available</p>'
+        }
+
+        function updateLabChart() {
+            const ctx = document.getElementById('lab-chart')
+            if (!ctx) return
+            
+            const labStats = {}
+            
+            dashboardData.forEach(record => {
+                if (record.lab) {
+                    if (!labStats[record.lab]) {
+                        labStats[record.lab] = { total: 0, failed: 0 }
+                    }
+                    labStats[record.lab].total++
+                    if (record.compliance_status?.includes('Failed')) {
+                        labStats[record.lab].failed++
+                    }
+                }
+            })
+            
+            const labels = Object.keys(labStats)
+            const failureRates = labels.map(lab => 
+                labStats[lab].total > 0 ? (labStats[lab].failed / labStats[lab].total * 100) : 0
+            )
+            
+            // Destroy existing chart if it exists
+            if (window.labChart) {
+                window.labChart.destroy()
+            }
+            
+            window.labChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Failure Rate %',
+                        data: failureRates,
+                        backgroundColor: '#ef4444',
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%'
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        }
+
+        // Helper Functions
+        function getPaymentPlaceholder(method) {
+            switch(method) {
+                case 'Check': return 'Check Number'
+                case 'Cash': return 'Amount/Notes'
+                case 'ACH': return 'Reference Number'
+                case 'Wire': return 'Wire Reference'
+                default: return 'Payment Details'
+            }
+        }
+
+        // Update Statistics
+        function updateStats() {
+            const total = dashboardData.length
+            const paid = dashboardData.filter(r => r.paid_status === 'Paid').length
+            const unpaid = dashboardData.filter(r => r.paid_status === 'Not Paid').length
+            const passed = dashboardData.filter(r => r.compliance_status?.includes('Passed')).length
+            const pending = dashboardData.filter(r => r.compliance_status === 'Not Set' || !r.compliance_status).length
+            
+            const totalPaidAmount = dashboardData
+                .filter(r => r.paid_status === 'Paid')
+                .reduce((sum, r) => sum + parseFloat(r.total_amount || 0), 0)
+            
+            const totalUnpaidAmount = dashboardData
+                .filter(r => r.paid_status === 'Not Paid')
+                .reduce((sum, r) => sum + parseFloat(r.total_amount || 0), 0)
+
+            document.getElementById('stat-total').textContent = total
+            document.getElementById('stat-pending').textContent = pending
+            document.getElementById('stat-passed').textContent = passed
+            document.getElementById('stat-paid').textContent = paid
+            document.getElementById('stat-unpaid').textContent = unpaid
+            document.getElementById('total-paid').textContent = totalPaidAmount.toFixed(2)
+            document.getElementById('total-unpaid').textContent = totalUnpaidAmount.toFixed(2)
+        }
+
+        // Update Record Field
+        let currentEditingId = null
+        
+        function updateRecordField(recordId, fieldName, value) {
+            currentEditingId = recordId
+            const record = dashboardData.find(r => r.id == recordId)
+            if (record) {
+                const oldValue = record[fieldName]
+                
+                // Validate METRC tag if that's what's being updated
+                if (fieldName === 'metrc_tag' && value) {
+                    const validation = validateMETRCTag(value)
+                    if (!validation.valid && !settings.allowFlexibleImport) {
+                        showToast(validation.message, 'error')
+                        // Revert the input
+                        updateTables()
+                        currentEditingId = null
+                        return
+                    }
+                }
+                
+                record[fieldName] = value
+                
+                // Update related fields
+                if (fieldName === 'paid_date') {
+                    record.paid_status = value ? 'Paid' : 'Not Paid'
+                } else if (fieldName === 'price_per_pound' || fieldName === 'invoice_weight') {
+                    record.total_amount = (parseFloat(record.invoice_weight || 0) * parseFloat(record.price_per_pound || 0)).toFixed(2)
+                }
+                
+                updateTables()
+                updateStats()
+                saveToLocalStorage()
+                
+                addAuditEntry('UPDATE', recordId, `${fieldName} changed from "${oldValue}" to "${value}"`)
+                
+                if (currentTab === 'calendar') {
+                    updateXraySchedule()
+                    updateCalendarView()
+                }
+            }
+            currentEditingId = null
+        }
+
+        // Delete Record
+        function deleteRecord(recordId) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                const record = dashboardData.find(r => r.id == recordId)
+                if (record) {
+                    dashboardData = dashboardData.filter(r => r.id != recordId)
+                    filteredData = filteredData.filter(r => r.id != recordId)
+                    
+                    updateTables()
+                    updateStats()
+                    updateXraySchedule()
+                    saveToLocalStorage()
+                    
+                    addAuditEntry('DELETE', recordId, `Deleted record for ${record.customer}`)
+                    showToast('Record deleted successfully', 'success')
+                }
+            }
+        }
+
+        // Edit Record Modal
+        function editRecord(recordId) {
+            const record = dashboardData.find(r => r.id === recordId)
+            if (!record) return
+            
+            showAddRecordModal(record)
+        }
+
+        // Show Record Details
+        function showRecordDetails(recordId) {
+            const record = dashboardData.find(r => r.id === recordId)
+            if (!record) return
+            
+            const modal = document.createElement('div')
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop'
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-screen overflow-y-auto slide-in">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold text-gray-900">Record Details</h2>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-                    customer: "The King's Stache LLC",
+                    invoice_to: "King's Stache",
+                    metrc_tag: "1A40D030000891D000000660",
+                    invoice_weight: "3.25",
+                    weight_input_value: "3.25",
+                    weight_unit: "lbs",
+                    price_per_pound: 50,
+                    total_amount: 162.50,
+                    invoice_number: "INV-2024-002",
+                    payment_method: "ACH",
+                    payment_details: "REF-789456",
+                    paid_status: "Paid",
+                    paid_date: "2024-06-22",
+                    tests_failed: "",
+                    lab: "Nelson",
+                    compliance_status: "Not Set",
+                    date_created: "2024-06-18",
+                    xray_date: "",
+                    xray_completed: false
+                },
+                {
+                    id: Date.now() + 4,
+                    customer: "Flamingo Fine Cannabis LLC",
+                    invoice_to: "Flamingo Fine Cannabis",
+                    metrc_tag: "1A40D030000891D000000661",
+                    invoice_weight: "4.00",
+                    weight_input_value: "1814.37",
+                    weight_unit: "grams",
+                    price_per_pound: 45,
+                    total_amount: 180.00,
+                    invoice_number: "INV-2024-003",
+                    payment_method: "Cash",
+                    payment_details: "$180 paid in full",
+                    paid_status: "Paid",
+                    paid_date: "2024-06-23",
+                    tests_failed: "All Micros",
+                    lab: "Nova",
+                    compliance_status: "Failed Testing",
+                    date_created: "2024-06-19",
+                    xray_date: "2024-06-20",
+                    xray_completed: true
+                }
+            ]
+            
+            dashboardData = [...dashboardData, ...sampleRecords]
+            filteredData = [...dashboardData]
+            updateTables()
+            updateStats()
+            updateXraySchedule()
+            saveToLocalStorage()
+            
+            sampleRecords.forEach(record => {
+                addAuditEntry('CREATE', record.id, `Added sample record for ${record.customer}`)
+            })
+            
+            showToast(`Sample data created successfully! ${sampleRecords.length} records added.`, 'success')
+        }
+
+        // Weight Conversion Functions
+        function convertToPounds(value, unit) {
+            if (!value || value === '') return ''
+            const numValue = parseFloat(value)
+            if (isNaN(numValue)) return ''
+            
+            if (unit === 'grams') {
+                return (numValue / 453.59237).toFixed(2)
+            } else if (unit === 'oz') {
+                return (numValue / 16).toFixed(2)
+            } else if (unit === 'kg') {
+                return (numValue * 2.20462).toFixed(2)
+            }
+            return numValue.toFixed(2)
+        }
+
+        // Enhanced Weight Input
+        function createWeightInput(record, context = '') {
+            const weightValue = record.weight_input_value || record.invoice_weight || ''
+            const weightUnit = record.weight_unit || 'lbs'
+            const inputId = `weight-${context}${record.id}`
+            
+            return `
+                <div class="flex items-center gap-1">
+                    <input type="number" 
+                           id="${inputId}"
+                           step="0.01" 
+                           value="${weightValue}" 
+                           onchange="updateWeight(${record.id}, this.value, document.getElementById('${inputId}-unit').value)"
+                           class="px-3 py-2 border border-gray-300 rounded-md text-sm w-20 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <select id="${inputId}-unit" 
+                            onchange="updateWeight(${record.id}, document.getElementById('${inputId}').value, this.value)"
+                            class="px-2 py-2 border border-gray-300 rounded-md text-xs w-16 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="lbs" ${weightUnit === 'lbs' ? 'selected' : ''}>lbs</option>
+                        <option value="grams" ${weightUnit === 'grams' ? 'selected' : ''}>g</option>
+                        <option value="oz" ${weightUnit === 'oz' ? 'selected' : ''}>oz</option>
+                        <option value="kg" ${weightUnit === 'kg' ? 'selected' : ''}>kg</option>
+                    </select>
+                </div>
+            `
+        }
+
+        function updateWeight(recordId, inputValue, unit) {
+            const record = dashboardData.find(r => r.id == recordId)
+            if (record) {
+                const oldWeight = record.invoice_weight
+                
+                record.weight_input_value = inputValue
+                record.weight_unit = unit
+                record.invoice_weight = convertToPounds(inputValue, unit)
+                
+                // Update total amount
+                if (record.price_per_pound) {
+                    record.total_amount = (parseFloat(record.invoice_weight) * record.price_per_pound).toFixed(2)
+                }
+                
+                updateTables()
+                updateStats()
+                saveToLocalStorage()
+                
+                addAuditEntry('UPDATE', recordId, `Weight changed from ${oldWeight} to ${record.invoice_weight} lbs`)
+                
+                if (inputValue && unit !== 'lbs') {
+                    showToast(`${inputValue} ${unit} = ${record.invoice_weight} lbs`, 'info')
+                }
+            }
+        }
+
+        // Enhanced Toast Notifications
+        function showToast(message, type = 'info', duration = 5000) {
+            const toast = document.createElement('div')
+            const bgColor = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            }[type] || 'bg-blue-500'
+            
+            const icon = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            }[type] || 'ℹ'
+            
+            toast.className = `toast ${bgColor} text-white px-4 py-3 rounded-lg shadow-lg z-50 min-w-[300px] slide-in`
+            toast.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">${icon}</span>
+                    <span class="flex-1">${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200 text-xl">×</button>
+                </div>
+            `
+            
+            const container = document.getElementById('toast-container')
+            container.appendChild(toast)
+            setTimeout(() => toast.classList.add('show'), 100)
+            
+            setTimeout(() => {
+                toast.classList.remove('show')
+                setTimeout(() => toast.remove(), 300)
+            }, duration)
+        }
+
+        // Enhanced Excel Upload with Validation
+        function handleExcelUpload(event) {
+            const file = event.target.files[0]
+            if (!file) return
+
+            showToast('Processing Excel file...', 'info')
+            
+            const reader = new FileReader()
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result)
+                    const workbook = XLSX.read(data, { type: 'array' })
+                    
+                    const sheetName = workbook.SheetNames[0]
+                    const worksheet = workbook.Sheets[sheetName]
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                        header: 1,
+                        defval: '',
+                        raw: false 
+                    })
+
+                    let newRecordsCount = 0
+                    let skippedCount = 0
+                    const errors = []
+                    
+                    console.log(`Processing ${jsonData.length - 1} rows from Excel...`)
+                    
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i]
+                        
+                        // Skip completely empty rows
+                        if (!row || row.every(cell => !cell || cell.toString().trim() === '')) {
+                            continue
+                        }
+                        
+                        const newRecord = {
+                            id: Date.now() + i,
+                            date_created: new Date().toISOString().split('T')[0],
+                            price_per_pound: settings.pricePerPound,
+                            xray_date: '',
+                            xray_completed: false
+                        }
+                        
+                        // Map Excel columns to record fields
+                        Object.keys(COLUMN_MAPPING).forEach(colIndex => {
+                            const fieldName = COLUMN_MAPPING[colIndex]
+                            const cellValue = row[parseInt(colIndex)]
+                            
+                            if (cellValue !== undefined && cellValue !== null && cellValue.toString().trim()) {
+                                newRecord[fieldName] = cellValue.toString().trim()
+                            }
+                        })
+                        
+                        // Set defaults for all fields
+                        newRecord.customer = newRecord.customer || ''
+                        newRecord.invoice_to = newRecord.invoice_to || ''
+                        newRecord.metrc_tag = newRecord.metrc_tag || ''
+                        newRecord.invoice_weight = newRecord.invoice_weight || '0'
+                        newRecord.weight_unit = 'lbs'
+                        newRecord.weight_input_value = newRecord.invoice_weight
+                        newRecord.invoice_number = newRecord.invoice_number || ''
+                        newRecord.payment_method = newRecord.payment_method || ''
+                        newRecord.payment_details = newRecord.payment_details || ''
+                        newRecord.tests_failed = newRecord.tests_failed || ''
+                        newRecord.lab = newRecord.lab || ''
+                        newRecord.compliance_status = newRecord.compliance_status || 'Not Set'
+                        newRecord.paid_status = newRecord.paid_date ? 'Paid' : 'Not Paid'
+                        
+                        // Calculate total amount
+                        const weight = parseFloat(newRecord.invoice_weight) || 0
+                        if (weight > 0 && newRecord.price_per_pound) {
+                            newRecord.total_amount = (weight * newRecord.price_per_pound).toFixed(2)
+                        } else {
+                            newRecord.total_amount = '0.00'
+                        }
+                        
+                        // Skip if no meaningful data
+                        if (!newRecord.customer && !newRecord.metrc_tag && !newRecord.invoice_to) {
+                            skippedCount++
+                            continue
+                        }
+                        
+                        // Only validate METRC tag format if provided
+                        if (newRecord.metrc_tag && settings.metrcTagFormat) {
+                            const metrcValidation = validateMETRCTag(newRecord.metrc_tag)
+                            if (!metrcValidation.valid && !settings.allowFlexibleImport) {
+                                errors.push(`Row ${i + 1}: ${metrcValidation.message}`)
+                                skippedCount++
+                                continue
+                            }
+                        }
+                        
+                        dashboardData.push(newRecord)
+                        newRecordsCount++
+                        
+                        addAuditEntry('IMPORT', newRecord.id, `Imported from Excel: ${newRecord.customer || newRecord.metrc_tag || 'Row ' + (i + 1)}`)
+                    }
+
+                    filteredData = [...dashboardData]
+                    updateTables()
+                    updateStats()
+                    updateXraySchedule()
+                    saveToLocalStorage()
+                    
+                    if (errors.length > 0 && errors.length < 10) {
+                        // Show first 10 errors in detail
+                        console.error('Import errors:', errors)
+                        showToast(`Import complete with errors. ${newRecordsCount} added, ${skippedCount} skipped. Check console for details.`, 'warning', 8000)
+                    } else if (errors.length >= 10) {
+                        console.error(`Import had ${errors.length} errors. First 10:`, errors.slice(0, 10))
+                        showToast(`Import complete. ${newRecordsCount} added, ${skippedCount} skipped due to validation errors.`, 'warning', 8000)
+                    } else {
+                        showToast(`Excel import complete! ${newRecordsCount} records added.`, 'success')
+                    }
+                    
+                    event.target.value = ''
+                    
+                } catch (error) {
+                    console.error('Error processing Excel file:', error)
+                    showToast('Error processing Excel file: ' + error.message, 'error')
+                }
+            }
+            
+            reader.onerror = function(error) {
+                console.error('Error reading file:', error)
+                showToast('Error reading file', 'error')
+            }
+            
+            reader.readAsArrayBuffer(file)
+        }
+
+        // Search and Filter Functions
+        function performSearch(searchTerm) {
+            if (!searchTerm) {
+                filteredData = [...dashboardData]
+            } else {
+                const term = searchTerm.toLowerCase()
+                filteredData = dashboardData.filter(record => 
+                    (record.customer || '').toLowerCase().includes(term) ||
+                    (record.metrc_tag || '').toLowerCase().includes(term) ||
+                    (record.invoice_number || '').toLowerCase().includes(term) ||
+                    (record.invoice_to || '').toLowerCase().includes(term) ||
+                    (record.lab || '').toLowerCase().includes(term)
+                )
+            }
+            
+            const resultCount = document.getElementById('search-results-count')
+            if (searchTerm && resultCount) {
+                resultCount.textContent = `${filteredData.length} found`
+            } else if (resultCount) {
+                resultCount.textContent = ''
+            }
+            
+            updateTables()
+        }
+
+        function filterByStatus(status) {
+            const searchInput = document.getElementById('search')
+            searchInput.value = ''
+            
+            switch(status) {
+                case 'paid':
+                    filteredData = dashboardData.filter(r => r.paid_status === 'Paid')
+                    break
+                case 'unpaid':
+                    filteredData = dashboardData.filter(r => r.paid_status === 'Not Paid')
+                    break
+                case 'passed':
+                    filteredData = dashboardData.filter(r => r.compliance_status?.includes('Passed'))
+                    break
+                case 'pending':
+                    filteredData = dashboardData.filter(r => r.compliance_status === 'Not Set' || !r.compliance_status)
+                    break
+                default:
+                    filteredData = [...dashboardData]
+            }
+            
+            updateTables()
+            showToast(`Filtering by: ${status}`, 'info', 2000)
+        }
+
+        function applyDateFilter() {
+            const fromDate = document.getElementById('date-from').value
+            const toDate = document.getElementById('date-to').value
+            
+            if (!fromDate && !toDate) {
+                showToast('Please select at least one date', 'warning')
+                return
+            }
+            
+            filteredData = dashboardData.filter(record => {
+                const recordDate = new Date(record.date_created)
+                if (fromDate && recordDate < new Date(fromDate)) return false
+                if (toDate && recordDate > new Date(toDate)) return false
+                return true
+            })
+            
+            updateTables()
+            showToast(`Filtered ${filteredData.length} records by date range`, 'info')
+        }
+
+        function clearDateFilter() {
+            document.getElementById('date-from').value = ''
+            document.getElementById('date-to').value = ''
+            filteredData = [...dashboardData]
+            updateTables()
+        }
+
+        // Bulk Actions
+        function toggleSelectAll() {
+            const checkAll = document.getElementById('select-all')
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][data-record-id]')
+            
+            checkboxes.forEach(cb => {
+                cb.checked = checkAll.checked
+                const recordId = parseInt(cb.getAttribute('data-record-id'))
+                if (checkAll.checked) {
+                    selectedRecords.add(recordId)
+                } else {
+                    selectedRecords.delete(recordId)
+                }
+            })
+            
+            updateBulkActionsBar()
+        }
+
+        function toggleRecordSelection(recordId) {
+            if (selectedRecords.has(recordId)) {
+                selectedRecords.delete(recordId)
+            } else {
+                selectedRecords.add(recordId)
+            }
+            
+            updateBulkActionsBar()
+        }
+
+        function updateBulkActionsBar() {
+            const bar = document.getElementById('bulk-actions-bar')
+            const count = document.getElementById('selected-count')
+            
+            if (selectedRecords.size > 0) {
+                bar.classList.remove('hidden')
+                count.textContent = selectedRecords.size
+            } else {
+                bar.classList.add('hidden')
+            }
+        }
+
+        function bulkUpdateStatus(status) {
+            if (selectedRecords.size === 0) return
+            
+            let updateCount = 0
+            selectedRecords.forEach(recordId => {
+                const record = dashboardData.find(r => r.id === recordId)
+                if (record) {
+                    if (status === 'paid') {
+                        record.paid_status = 'Paid'
+                        record.paid_date = new Date().toISOString().split('T')[0]
+                    }
+                    updateCount++
+                    addAuditEntry('BULK_UPDATE', recordId, `Status changed to ${status}`)
+                }
+            })
+            
+            selectedRecords.clear()
+            updateTables()
+            updateStats()
+            saveToLocalStorage()
+            updateBulkActionsBar()
+            
+            showToast(`Updated ${updateCount} records to ${status}`, 'success')
+        }
+
+        function bulkUpdateCompliance(status) {
+            if (selectedRecords.size === 0) return
+            
+            let updateCount = 0
+            selectedRecords.forEach(recordId => {
+                const record = dashboardData.find(r => r.id === recordId)
+                if (record) {
+                    record.compliance_status = status === 'passed' ? 'Passed Testing' : 'Failed Testing'
+                    updateCount++
+                    addAuditEntry('BULK_UPDATE', recordId, `Compliance changed to ${record.compliance_status}`)
+                }
+            })
+            
+            selectedRecords.clear()
+            updateTables()
+            updateStats()
+            saveToLocalStorage()
+            updateBulkActionsBar()
+            
+            showToast(`Updated ${updateCount} records compliance status`, 'success')
+        }
+
+        function bulkDelete() {
+            if (selectedRecords.size === 0) return
+            
+            if (!confirm(`Are you sure you want to delete ${selectedRecords.size} records?`)) return
+            
+            const deleteCount = selectedRecords.size
+            selectedRecords.forEach(recordId => {
+                dashboardData = dashboardData.filter(r => r.id !== recordId)
+                filteredData = filteredData.filter(r => r.id !== recordId)
+                addAuditEntry('BULK_DELETE', recordId, 'Record deleted in bulk operation')
+            })
+            
+            selectedRecords.clear()
+            updateTables()
+            updateStats()
+            updateXraySchedule()
+            saveToLocalStorage()
+            updateBulkActionsBar()
+            
+            showToast(`Deleted ${deleteCount} records`, 'success')
+        }
+
+        // Update Tables
+        function updateTables() {
+            updateInvoicingTable()
+            updateTestingTable()
+            if (currentTab === 'calendar') {
+                updateCalendarView()
+            } else if (currentTab === 'reports') {
+                updateReports()
+            }
+        }
+
+        // Enhanced Invoicing Table
+        function updateInvoicingTable() {
+            const tbody = document.getElementById('invoicing-tbody')
+            
+            if (!tbody) return
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr class="border-b border-gray-100">
+                        <td colspan="15" class="px-4 py-8 text-center text-gray-500">
+                            ${dashboardData.length === 0 ? 
+                                'Upload an Excel file, add records manually, or create sample data to get started' : 
+                                'No records match your search criteria'}
+                        </td>
+                    </tr>
+                `
+                return
+            }
+
+            tbody.innerHTML = filteredData.map((record, index) => {
+                const isSelected = selectedRecords.has(record.id)
+                const rowClass = isSelected ? 'bg-blue-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                
+                return `
+                <tr class="border-b border-gray-100 hover:bg-gray-100 ${rowClass}">
+                    <td class="px-4 py-3">
+                        <input type="checkbox" 
+                               data-record-id="${record.id}"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleRecordSelection(${record.id})"
+                               class="rounded">
+                    </td>
+                    <td class="px-4 py-3 text-gray-900 text-xs">${record.date_created || 'N/A'}</td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.customer || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'customer', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.invoice_to || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'invoice_to', this.value)"
+                            list="invoice-to-options"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.metrc_tag || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'metrc_tag', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[160px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" />
+                    </td>
+                    <td class="px-4 py-3">
+                        ${createWeightInput(record, 'inv-')}
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-700 font-medium">
+                            ${parseFloat(record.invoice_weight || 0).toFixed(2)} lbs
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="number" value="${record.price_per_pound || settings.pricePerPound}" 
+                            step="0.01"
+                            onchange="updateRecordField(${record.id}, 'price_per_pound', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-20 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="px-3 py-2 bg-green-50 border border-green-200 rounded-md text-sm text-green-700 font-bold">
+                            ${parseFloat(record.total_amount || 0).toFixed(2)}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.invoice_number || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'invoice_number', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <select onchange="updateRecordField(${record.id}, 'payment_method', this.value)" 
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" ${!record.payment_method ? 'selected' : ''}>Select</option>
+                            <option value="Check" ${record.payment_method === 'Check' ? 'selected' : ''}>Check</option>
+                            <option value="Cash" ${record.payment_method === 'Cash' ? 'selected' : ''}>Cash</option>
+                            <option value="ACH" ${record.payment_method === 'ACH' ? 'selected' : ''}>ACH</option>
+                            <option value="Wire" ${record.payment_method === 'Wire' ? 'selected' : ''}>Wire</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.payment_details || '').replace(/"/g, '&quot;')}" 
+                            placeholder="${getPaymentPlaceholder(record.payment_method)}"
+                            onchange="updateRecordField(${record.id}, 'payment_details', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <select onchange="updateRecordField(${record.id}, 'paid_status', this.value)" 
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${record.paid_status === 'Paid' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}">
+                            <option value="Not Paid" ${record.paid_status === 'Not Paid' ? 'selected' : ''}>Not Paid</option>
+                            <option value="Paid" ${record.paid_status === 'Paid' ? 'selected' : ''}>Paid</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="date" value="${record.paid_date || ''}" 
+                            onchange="updateRecordField(${record.id}, 'paid_date', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </td>
+                    <td class="px-4 py-3">
+                        <div class="flex gap-1">
+                            <button onclick="editRecord(${record.id})" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600">
+                                Edit
+                            </button>
+                            <button onclick="deleteRecord(${record.id})" class="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                `
+            }).join('')
+
+            // Add datalist for autocomplete
+            if (!document.getElementById('invoice-to-options')) {
+                const datalist = document.createElement('datalist')
+                datalist.id = 'invoice-to-options'
+                datalist.innerHTML = dropdownOptions.invoiceTo.map(opt => 
+                    `<option value="${opt}">`
+                ).join('')
+                document.body.appendChild(datalist)
+            }
+        }
+
+        // Enhanced Testing Table
+        function updateTestingTable() {
+            const tbody = document.getElementById('testing-tbody')
+            if (!tbody) return
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `
+                    <tr class="border-b border-gray-100">
+                        <td colspan="11" class="px-4 py-8 text-center text-gray-500">
+                            ${dashboardData.length === 0 ? 
+                                'Upload an Excel file, add records manually, or create sample data to get started' : 
+                                'No records match your search criteria'}
+                        </td>
+                    </tr>
+                `
+                return
+            }
+
+            tbody.innerHTML = filteredData.map((record, index) => {
+                const isSelected = selectedRecords.has(record.id)
+                const rowClass = isSelected ? 'bg-blue-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                const xrayInfo = getXrayDateForRecord(record.id)
+                
+                return `
+                <tr class="border-b border-gray-100 hover:bg-gray-100 ${rowClass}">
+                    <td class="px-4 py-3">
+                        <input type="checkbox" 
+                               data-record-id="${record.id}"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleRecordSelection(${record.id})"
+                               class="rounded">
+                    </td>
+                    <td class="px-4 py-3 text-gray-900 text-xs">${record.date_created || ''}</td>
+                    <td class="px-4 py-3">
+                        <input type="text" value="${(record.customer || '').replace(/"/g, '&quot;')}" 
+                            onchange="updateRecordField(${record.id}, 'customer', this.value)"
+                            class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full min-w-[140px] focus<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Ray & Compliance Tracking Dashboard - Enhanced</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 50;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .autocomplete-item:hover {
+            background-color: #f3f4f6;
+        }
+        .toast {
+            transition: all 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        .toast.show {
+            transform: translateX(0);
+        }
+        .dragging {
+            opacity: 0.5;
+            cursor: move;
+        }
+        .drag-over {
+            background-color: #e0e7ff;
+            border: 2px dashed #6366f1;
+        }
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="p-6 space-y-6 bg-gray-50 min-h-screen">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-semibold text-gray-900">X-Ray & Compliance Tracking</h1>
+                <div class="flex items-center gap-4">
+                    <div id="auto-save-indicator" class="text-sm text-green-600 hidden">
+                        ✓ Auto-saved
+                    </div>
+                    <div id="loading-indicator" class="items-center gap-2 hidden">
+                        <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-sm text-gray-600">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div id="stats-container">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow" onclick="filterByStatus('all')">
+                        <div class="text-2xl font-bold text-gray-900" id="stat-total">0</div>
+                        <div class="text-sm text-gray-600">Total Records</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow" onclick="filterByStatus('pending')">
+                        <div class="text-2xl font-bold text-yellow-600" id="stat-pending">0</div>
+                        <div class="text-sm text-gray-600">Pending Testing</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow" onclick="filterByStatus('passed')">
+                        <div class="text-2xl font-bold text-green-600" id="stat-passed">0</div>
+                        <div class="text-sm text-gray-600">Passed Testing</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow" onclick="filterByStatus('paid')">
+                        <div class="text-2xl font-bold text-green-600" id="stat-paid">0</div>
+                        <div class="text-sm text-gray-600">Paid</div>
+                        <div class="text-xs text-gray-500 mt-1">$<span id="total-paid">0.00</span></div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow" onclick="filterByStatus('unpaid')">
+                        <div class="text-2xl font-bold text-red-600" id="stat-unpaid">0</div>
+                        <div class="text-sm text-gray-600">Unpaid</div>
+                        <div class="text-xs text-gray-500 mt-1">$<span id="total-unpaid">0.00</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <!-- Tabs Navigation -->
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                        <button id="invoicing-tab" class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border-b-2 border-blue-600 rounded-t-md">
+                            💰 Invoicing
+                        </button>
+                        <button id="testing-tab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent rounded-t-md">
+                            🧪 Testing
+                        </button>
+                        <button id="calendar-tab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent rounded-t-md">
+                            📅 X-Ray Calendar
+                        </button>
+                        <button id="reports-tab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent rounded-t-md">
+                            📊 Reports
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Controls Section -->
+                <div class="p-4 space-y-4">
+                    <div class="flex flex-col lg:flex-row gap-4">
+                        <div class="relative flex-1">
+                            <input
+                                id="search"
+                                type="text"
+                                placeholder="Search by customer, METRC tag, or invoice..."
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <div id="search-results-count" class="absolute right-3 top-2.5 text-sm text-gray-500"></div>
+                        </div>
+                        <div class="flex gap-2 flex-wrap">
+                            <label class="flex items-center gap-2 cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                Upload Excel
+                                <input id="excel-upload" type="file" accept=".xlsx,.xls" class="hidden" />
+                            </label>
+                            <button id="export-btn" class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">
+                                Export Excel
+                            </button>
+                            <button id="add-record-btn" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                                Add Record
+                            </button>
+                            <button id="bulk-actions-btn" class="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                                Bulk Actions
+                            </button>
+                            <button id="settings-btn" class="px-4 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                                ⚙️ Settings
+                            </button>
+                            <button id="create-sample-btn" class="px-4 py-2 text-sm bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
+                                Create Sample Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Date Range Filter -->
+                    <div id="date-filter" class="flex gap-4 items-center bg-gray-50 p-3 rounded-md">
+                        <span class="text-sm font-medium text-gray-700">Filter by Date:</span>
+                        <input type="date" id="date-from" class="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                        <span class="text-sm text-gray-500">to</span>
+                        <input type="date" id="date-to" class="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                        <button onclick="applyDateFilter()" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">Apply</button>
+                        <button onclick="clearDateFilter()" class="px-3 py-1 bg-gray-400 text-white rounded-md text-sm hover:bg-gray-500">Clear</button>
+                    </div>
+
+                    <!-- Bulk Actions Bar -->
+                    <div id="bulk-actions-bar" class="hidden bg-blue-50 p-3 rounded-md flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <input type="checkbox" id="select-all" onchange="toggleSelectAll()" class="rounded">
+                            <span class="text-sm font-medium"><span id="selected-count">0</span> records selected</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="bulkUpdateStatus('paid')" class="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">
+                                Mark as Paid
+                            </button>
+                            <button onclick="bulkUpdateCompliance('passed')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
+                                Mark as Passed
+                            </button>
+                            <button onclick="bulkDelete()" class="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700">
+                                Delete Selected
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="p-4 overflow-x-auto">
+                    <div id="invoicing-table">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 font-medium text-gray-900">
+                                        <input type="checkbox" class="rounded" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Date Created</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Customer</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Invoice To</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">METRC Tag</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Weight (Input)</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Invoice Weight</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Price/lb</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Total</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Invoice #</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Payment Method</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Payment Details</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Paid Status</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Paid Date</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoicing-tbody">
+                                <tr class="border-b border-gray-100">
+                                    <td colspan="15" class="px-4 py-8 text-center text-gray-500">
+                                        Upload an Excel file, add records manually, or create sample data to get started
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="testing-table" class="hidden">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 font-medium text-gray-900">
+                                        <input type="checkbox" class="rounded" onchange="toggleSelectAll()">
+                                    </th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Date Created</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Customer</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">METRC Tag</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Weight (Input)</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Invoice Weight</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Tests Failed</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Lab</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Compliance Status</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">X-Ray Date</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testing-tbody">
+                                <tr class="border-b border-gray-100">
+                                    <td colspan="11" class="px-4 py-8 text-center text-gray-500">
+                                        Upload an Excel file, add records manually, or create sample data to get started
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Calendar View -->
+                    <div id="calendar-view" class="hidden">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <button id="prev-month" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium">
+                                    ← Previous
+                                </button>
+                                <h2 id="calendar-month-year" class="text-xl font-semibold text-gray-900"></h2>
+                                <button id="next-month" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium">
+                                    Next →
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-sm text-gray-600">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">2 X-Ray slots per day (Mon-Sat)</span>
+                                </div>
+                                <label class="flex items-center gap-2 text-sm">
+                                    <input type="checkbox" id="show-completed" onchange="updateCalendarView()" class="rounded">
+                                    <span>Show completed</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-1 mb-2">
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Sun</div>
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Mon</div>
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Tue</div>
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Wed</div>
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Thu</div>
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Fri</div>
+                            <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 rounded">Sat</div>
+                        </div>
+                        
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                            <!-- Calendar days will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Reports View -->
+                    <div id="reports-view" class="hidden">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Summary Report -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Summary Report</h3>
+                                <div id="summary-report" class="space-y-3"></div>
+                            </div>
+
+                            <!-- Charts -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Compliance Overview</h3>
+                                <canvas id="compliance-chart" width="400" height="200"></canvas>
+                            </div>
+
+                            <!-- Customer Analysis -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Top Customers by Revenue</h3>
+                                <div id="customer-report" class="space-y-2"></div>
+                            </div>
+
+                            <!-- Lab Performance -->
+                            <div class="bg-gray-50 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold mb-4">Lab Failure Rates</h3>
+                                <canvas id="lab-chart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Export Report Buttons -->
+                        <div class="mt-6 flex gap-4">
+                            <button onclick="exportFullReport()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                📄 Export Full Report (PDF)
+                            </button>
+                            <button onclick="exportDetailedExcel()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                📊 Export Detailed Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Audit Log -->
+    <div id="audit-log" class="fixed bottom-4 left-4 bg-white rounded-lg shadow-lg p-4 max-w-sm hidden">
+        <h4 class="font-semibold text-sm mb-2">Recent Changes</h4>
+        <div id="audit-entries" class="text-xs space-y-1 max-h-32 overflow-y-auto"></div>
+        <button onclick="toggleAuditLog()" class="text-xs text-gray-500 mt-2">Hide</button>
+    </div>
+
+    <script>
+        // Global variables
+        let dashboardData = []
+        let filteredData = []
+        let currentTab = 'invoicing'
+        let currentCalendarDate = new Date()
+        let xraySchedule = {}
+        let selectedRecords = new Set()
+        let auditLog = []
+        let settings = {
+            pricePerPound: 50,
+            autoSave: true,
+            showAuditLog: false,
+            notificationEmail: '',
+            metrcTagFormat: /^1A40D03\d{16}$/, // Optional - won't fail imports without it
+            allowFlexibleImport: true // New setting for flexible imports
+        }
+        
+        const dropdownOptions = {
+            customers: ["Blue Sky Lab LLC", "Dreamscape Farms SP LLC", "The King's Stache LLC", "Flamingo Fine Cannabis LLC"],
+            invoiceTo: ["Blue Sky", "Dreamscape Farms", "King's Stache", "Flamingo Fine Cannabis"],
+            testsFailed: ["All Micros", "Total Yeast & Mold", "Mycotoxins", "None"],
+            labs: ["CATLAB", "MCR", "Nelson", "Nova"]
+        }
+
+        // Column mapping for Excel import
+        const COLUMN_MAPPING = {
+            0: 'metrc_tag',
+            1: 'invoice_to',
+            2: 'customer',
+            7: 'invoice_weight',
+            9: 'invoice_number',
+            10: 'paid_date',
+            11: 'tests_failed',
+            12: 'lab',
+            22: 'compliance_status'
+        }
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage()
+            init()
+        })
+
+        // Data Persistence Functions
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('xrayDashboardData', JSON.stringify(dashboardData))
+                localStorage.setItem('xraySettings', JSON.stringify(settings))
+                localStorage.setItem('xrayAuditLog', JSON.stringify(auditLog.slice(-100))) // Keep last 100 entries
+                
+                if (settings.autoSave) {
+                    const indicator = document.getElementById('auto-save-indicator')
+                    indicator.classList.remove('hidden')
+                    setTimeout(() => indicator.classList.add('hidden'), 2000)
+                }
+            } catch (e) {
+                console.error('Error saving to localStorage:', e)
+                showToast('Error saving data locally', 'error')
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('xrayDashboardData')
+                const savedSettings = localStorage.getItem('xraySettings')
+                const savedAudit = localStorage.getItem('xrayAuditLog')
+                
+                if (savedData) {
+                    dashboardData = JSON.parse(savedData)
+                    filteredData = [...dashboardData]
+                }
+                
+                if (savedSettings) {
+                    settings = JSON.parse(savedSettings)
+                }
+                
+                if (savedAudit) {
+                    auditLog = JSON.parse(savedAudit)
+                }
+                
+                updateTables()
+                updateStats()
+                
+                if (dashboardData.length > 0) {
+                    showToast(`Loaded ${dashboardData.length} records from local storage`, 'success')
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e)
+            }
+        }
+
+        // Audit Trail
+        function addAuditEntry(action, recordId, details) {
+            const entry = {
+                timestamp: new Date().toISOString(),
+                action,
+                recordId,
+                details,
+                user: 'Current User' // In real app, would be actual user
+            }
+            
+            auditLog.push(entry)
+            
+            if (settings.showAuditLog) {
+                updateAuditDisplay()
+            }
+            
+            saveToLocalStorage()
+        }
+
+        function updateAuditDisplay() {
+            const container = document.getElementById('audit-entries')
+            const recentEntries = auditLog.slice(-5).reverse()
+            
+            container.innerHTML = recentEntries.map(entry => {
+                const time = new Date(entry.timestamp).toLocaleTimeString()
+                return `<div class="text-gray-600">${time}: ${entry.action} - ${entry.details}</div>`
+            }).join('')
+        }
+
+        function toggleAuditLog() {
+            const log = document.getElementById('audit-log')
+            settings.showAuditLog = !settings.showAuditLog
+            
+            if (settings.showAuditLog) {
+                log.classList.remove('hidden')
+                updateAuditDisplay()
+            } else {
+                log.classList.add('hidden')
+            }
+            
+            saveToLocalStorage()
+        }
+
+        // Validation Functions
+        function validateMETRCTag(tag) {
+            if (!tag) return { valid: true } // Allow empty tags during import
+            
+            // Check format only if settings require it
+            if (settings.metrcTagFormat && !settings.metrcTagFormat.test(tag)) {
+                return { valid: false, message: 'Invalid METRC tag format. Expected: 1A40D03 followed by 16 digits' }
+            }
+            
+            // Check for duplicates
+            const duplicate = dashboardData.find(r => r.metrc_tag === tag && r.id !== currentEditingId)
+            if (duplicate) {
+                return { valid: false, message: 'This METRC tag already exists' }
+            }
+            
+            return { valid: true }
+        }
+
+        function validateRecord(record) {
+            const errors = []
+            
+            // Only validate METRC tag if it's provided
+            if (record.metrc_tag) {
+                const metrcValidation = validateMETRCTag(record.metrc_tag)
+                if (!metrcValidation.valid) errors.push(metrcValidation.message)
+            }
+            
+            // Validate required fields (relaxed for imports)
+            if (!record.customer && record.id) errors.push('Customer is required')
+            if (record.invoice_weight && isNaN(parseFloat(record.invoice_weight))) {
+                errors.push('Invalid weight value')
+            }
+            
+            // Validate payment details
+            if (record.paid_status === 'Paid' && !record.paid_date) {
+                record.paid_date = new Date().toISOString().split('T')[0] // Auto-set paid date
+            }
+            
+            return errors
+        }
+
+        // Enhanced Create Sample Data
+        function createSampleData() {
+            const sampleRecords = [
+                {
+                    id: Date.now() + 1,
+                    customer: "Blue Sky Lab LLC",
+                    invoice_to: "Blue Sky",
+                    metrc_tag: "1A40D030000891D000000658",
+                    invoice_weight: "2.50",
+                    weight_input_value: "2.50",
+                    weight_unit: "lbs",
+                    price_per_pound: 50,
+                    total_amount: 125.00,
+                    invoice_number: "INV-2024-001",
+                    payment_method: "Check",
+                    payment_details: "Check #1234",
+                    paid_status: "Paid",
+                    paid_date: "2024-06-20",
+                    tests_failed: "None",
+                    lab: "CATLAB",
+                    compliance_status: "Passed Testing",
+                    date_created: "2024-06-15",
+                    xray_date: "2024-06-17",
+                    xray_completed: true
+                },
+                {
+                    id: Date.now() + 2,
+                    customer: "Dreamscape Farms SP LLC",
+                    invoice_to: "Dreamscape Farms",
+                    metrc_tag: "1A40D030000891D000000659",
+                    invoice_weight: "1.75",
+                    weight_input_value: "1.75",
+                    weight_unit: "lbs",
+                    price_per_pound: 50,
+                    total_amount: 87.50,
+                    invoice_number: "",
+                    payment_method: "",
+                    payment_details: "",
+                    paid_status: "Not Paid",
+                    paid_date: "",
+                    tests_failed: "Total Yeast & Mold",
+                    lab: "MCR",
+                    compliance_status: "Failed Testing",
+                    date_created: "2024-06-16",
+                    xray_date: "2024-06-18",
+                    xray_completed: true
+                },
+                {
+                    id: Date.now() + 3,
+                    customer: "The King's Stache LLC",
+                    invoice_to: "King's Stache",

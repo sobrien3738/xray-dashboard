@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Ray & Compliance Tracking Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <div class="p-6 space-y-6 bg-gray-50 min-h-screen">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-semibold text-gray-900">X-Ray & Compliance Tracking</h1>
+                <div class="flex items-center gap-4">
+                    <div id="save-indicator" class="save-indicator flex items-center gap-2 text-sm text-green-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Data Auto-Saved</span>
+                    </div>
+                    <div id="loading-indicator" class="items-center gap-2 hidden">
+                        <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-sm text-gray-600">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div id="stats-container">
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="text-2xl font-bold text-gray-900" id="stat-total">0</div>
+                        <div class="text-sm text-gray-600">Total Records</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="text-2xl font-bold text-yellow-600" id="stat-pending">0</div>
+                        <div class="text-sm text-gray-600">Pending Testing</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="text-2xl font-bold text-green-600" id="stat-passed">0</div>
+                        <div class="text-sm text-gray-600">Passed Testing</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="text-2xl font-bold text-green-600" id="stat-paid">0</div>
+                        <div class="text-sm text-gray-600">Paid</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border">
+                        <div class="text-2xl font-bold text-red-600" id="stat-unpaid">0</div>
+                        <div class="text-sm text-gray-600">Unpaid</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <!-- Tabs Navigation -->
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                        <button id="invoicing-tab" class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border-b-2 border-blue-600 rounded-t-md">
+                            💰 Invoicing
+                        </button>
+                        <button id="testing-tab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent rounded-t-md">
+                            🧪 Testing
+                        </button>
+                        <button id="calendar-tab" class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent rounded-t-md">
+                            📅 X-Ray Calendar
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Controls Section -->
+                <div class="p-4 space-y-4">
+                    <div class="flex flex-col lg:flex-row gap-4">
+                        <input
+                            id="search"
+                            type="text"
+                            placeholder="Search by customer, METRC tag, or invoice..."
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                        <div class="flex gap-2">
+                            <button id="filter-toggle-btn" class="px-4 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                                🔍 Filters
+                            </button>
+                            <label class="flex items-center gap-2 cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                Upload Excel
+                                <input id="excel-upload" type="file" accept=".xlsx,.xls" class="hidden" />
+                            </label>
+                            <button id="export-btn" class="px-4 py-2 text-sm bg-green-600 text-white rounded-md hover:bg-green-700">
+                                Export Excel
+                            </button>
+                            <button id="add-record-btn" class="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700">
+                                Add Record
+                            </button>
+                            <button id="debug-btn" class="px-4 py-2 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700">
+                                Debug
+                            </button>
+                            <button id="create-sample-btn" class="px-4 py-2 text-sm bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
+                                Create Sample Data
+                            </button>
+                            <button id="clear-data-btn" class="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700">
+                                Clear All Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Filter Panel -->
+                    <div id="filter-panel" class="filter-panel">
+                        <div class="filter-row">
+                            <div class="filter-label">Date Range:</div>
+                            <div class="filter-input">
+                                <input type="date" id="filter-date-from" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="From">
+                            </div>
+                            <div class="filter-input">
+                                <input type="date" id="filter-date-to" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="To">
+                            </div>
+                        </div>
+                        <div class="filter-row">
+                            <div class="filter-label">Payment Status:</div>
+                            <div class="filter-input">
+                                <select id="filter-payment-status" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">All Payments</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Not Paid">Not Paid</option>
+                                </select>
+                            </div>
+                            <div class="filter-label">Customer:</div>
+                            <div class="filter-input">
+                                <input type="text" id="filter-customer" class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Customer name">
+                            </div>
+                        </div>
+                        <div class="filter-buttons">
+                            <button id="filter-clear-btn" class="filter-btn filter-btn-secondary">Clear Filters</button>
+                            <button id="filter-apply-btn" class="filter-btn filter-btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Bulk Actions Bar -->
+                    <div id="bulk-actions" class="bulk-actions">
+                        <div class="bulk-actions-count">
+                            <span id="selected-count">0</span> items selected
+                        </div>
+                        <div class="bulk-actions-buttons">
+                            <button id="bulk-delete-btn" class="bulk-action-btn">Delete Selected</button>
+                            <button id="bulk-export-btn" class="bulk-action-btn">Export Selected</button>
+                            <button id="bulk-mark-paid-btn" class="bulk-action-btn">Mark as Paid</button>
+                        </div>
+                        <button id="bulk-clear-btn" class="bulk-action-btn">Clear Selection</button>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="p-4 overflow-x-auto">
+                    <div id="invoicing-table">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 font-medium text-gray-900 w-10">
+                                        <input type="checkbox" id="select-all" class="row-checkbox" title="Select all rows">
+                                    </th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="date_created">Date Created</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="customer">Customer</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="invoice_to">Invoice To</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="metrc_tag">METRC Tag</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Apex Invoice Note</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Weight (Input)</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="invoice_weight">Invoice Weight</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="invoice_number">Invoice #</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="payment_method">Payment Method</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Payment Details</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="paid_status">Paid Status</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900 sortable-header" data-sort="paid_date">Paid Date</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoicing-tbody">
+                                <tr class="border-b border-gray-100">
+                                    <td colspan="14" class="px-4 py-8 text-center text-gray-500">
+                                        Upload an Excel file, add records manually, or create sample data to get started
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="testing-table" class="hidden">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Date Created</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Customer</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">METRC Tag</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Weight (Input)</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Invoice Weight</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Tests Failed</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Lab</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Compliance Status</th>
+                                    <th class="px-4 py-3 font-medium text-gray-900">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="testing-tbody">
+                                <tr class="border-b border-gray-100">
+                                    <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+                                        Upload an Excel file, add records manually, or create sample data to get started
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Calendar View -->
+                    <div id="calendar-view" class="hidden">
+                        <div class="flex items-center justify-between mb-6 no-print">
+                            <div class="flex items-center gap-4">
+                                <button id="prev-month" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium">
+                                    ← Previous
+                                </button>
+                                <h2 id="calendar-month-year" class="text-xl font-semibold text-gray-900"></h2>
+                                <button id="next-month" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium">
+                                    Next →
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-sm text-gray-600">
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">2 X-Ray slots per day (Mon-Sat)</span>
+                                </div>
+                                <button id="print-calendar-btn" class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium">
+                                    🖨️ Print Calendar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="calendar-container">
+                            <div class="grid grid-cols-7 gap-0 mb-0">
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Sun</div>
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Mon</div>
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Tue</div>
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Wed</div>
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Thu</div>
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Fri</div>
+                                <div class="bg-gray-50 p-3 text-center text-sm font-medium text-gray-700 border border-gray-300">Sat</div>
+                            </div>
+                            
+                            <div id="calendar-grid" class="grid grid-cols-7 gap-0">
+                                <!-- Calendar days will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <!-- Legend -->
+                        <div class="mt-4 flex items-center gap-6 text-sm no-print">
+                            <div class="flex items-center gap-2">
+                                <div class="calendar-slot available" style="min-height: 16px; width: 24px;"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="calendar-slot booked" style="min-height: 16px; width: 24px;"></div>
+                                <span>Booked</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="calendar-slot unavailable" style="min-height: 16px; width: 24px;"></div>
+                                <span>Unavailable</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    
+    <!-- Undo/Redo Panel -->
+    <div id="undo-redo-panel" class="undo-redo-panel">
+        <button id="undo-btn" class="undo-redo-btn" title="Undo last action">
+            ↶ Undo
+        </button>
+        <button id="redo-btn" class="undo-redo-btn" title="Redo last undone action">
+            ↷ Redo
+        </button>
+        <div id="undo-redo-info" class="undo-redo-info">
+            Ready
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="src/js/api-config.js"></script>
+    <script src="src/js/data-manager-api.js"></script>
+    <script src="src/js/ui-manager.js"></script>
+    <script src="src/js/calendar-manager.js"></script>
+    <script src="src/js/utils.js"></script>
+    <script src="src/js/app.js"></script>
+</body>
+</html>

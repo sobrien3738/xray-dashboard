@@ -1,0 +1,37 @@
+{
+  "name": "X-Ray Dashboard",
+  "description": "Multi-user X-Ray & Compliance Tracking Dashboard",
+  "keywords": ["xray", "compliance", "dashboard", "cannabis"],
+  "website": "https://github.com/yourusername/xray-dashboard",
+  "repository": "https://github.com/yourusername/xray-dashboard",
+  "stack": "heroku-22",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "NPM_CONFIG_PRODUCTION": {
+      "description": "Skip dev dependencies",
+      "value": "true"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini",
+      "options": {
+        "version": "15"
+      }
+    }
+  ]
+}

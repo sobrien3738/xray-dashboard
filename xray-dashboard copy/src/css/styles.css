@@ -1,0 +1,17 @@
+.toast {
+    transition: all 0.3s ease-in-out;
+    transform: translateX(100%);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.save-indicator {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.save-indicator.show {
+    opacity: 1;
+}

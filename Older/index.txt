@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Ray Tracking Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // Replace these with your Supabase project details
+        const SUPABASE_URL = 'https://njkudhzmqvxrkpxlnbii.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qa3VkaHptcXZ4cmtweGxuYmlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA0MjY2NzksImV4cCI6MjA2NjAwMjY3OX0.mca-MhlIPxsPNITxL6Dq23_U3oJMQGq_PJNemmF1r6c'
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+        class TrackingDashboard {
+            constructor() {
+                this.data = []
+                this.filteredData = []
+                this.searchTerm = ''
+                this.init()
+            }
+
+            async init() {
+                await this.loadData()
+                this.render()
+                this.setupEventListeners()
+            }
+
+            async loadData() {
+                try {
+                    const { data, error } = await supabase
+                        .from('tracking_records')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                    
+                    if (error) throw error
+                    this.data = data || []
+                    this.filterData()
+                } catch (error) {
+                    console.error('Error loading data:', error)
+                    alert('Error loading data. Please check your database connection.')
+                }
+            }
+
+            async saveRecord(record) {
+                try {
+                    if (record.id) {
+                        // Update existing record
+                        const { error } = await supabase
+                            .from('tracking_records')
+                            .update({ ...record, updated_at: new Date().toISOString() })
+                            .eq('id', record.id)
+                        if (error) throw error
+                    } else {
+                        // Insert new record
+                        const { error } = await supabase
+                            .from('tracking_records')
+                            .insert([record])
+                        if (error) throw error
+                    }
+                    await this.loadData()
+                } catch (error) {
+                    console.error('Error saving record:', error)
+                    alert('Error saving data. Please try again.')
+                }
+            }
+
+            filterData() {
+                this.filteredData = this.data.filter(item =>
+                    (item.customer?.toLowerCase() || '').includes(this.searchTerm.toLowerCase()) ||
+                    (item.product?.toLowerCase() || '').includes(this.searchTerm.toLowerCase())
+                )
+            }
+
+            async handleExcelUpload(event) {
+                const file = event.target.files[0]
+                if (!file) return
+
+                try {
+                    const buffer = await file.arrayBuffer()
+                    const workbook = XLSX.read(buffer, {
+                        cellDates: true,
+                        cellFormulas: true,
+                        cellNF: true,
+                        sheetStubs: true
+                    })
+
+                    const sheetName = workbook.SheetNames[0]
+                    const worksheet = workbook.Sheets[sheetName]
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                        header: 1,
+                        defval: '',
+                        raw: false 
+                    })
+
+                    console.log('Excel data loaded:', jsonData)
+
+                    const newRecords = []
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i]
+                        
+                        const colA = row[0] ? String(row[0]).trim() : ''
+                        let foundDate = ''
+                        
+                        // Look for date pattern
+                        for (let j = 0; j < row.length; j++) {
+                            const cellValue = row[j] ? String(row[j]).trim() : ''
+                            if (cellValue.includes('2025') || cellValue.includes('F3_S.D.') || cellValue.includes('/22/')) {
+                                foundDate = cellValue
+                                break
+                            }
+                        }
+
+                        if (colA) {
+                            const leaflinkNote = foundDate ? `${colA}\n${foundDate}` : colA
+                            const metrcTag = colA.substring(0, 16)
+
+                            newRecords.push({
+                                customer: '',
+                                invoice_to: '',
+                                from_license: '',
+                                to_license: '',
+                                product: '',
+                                invoice: '',
+                                metrc_tag: metrcTag,
+                                paid_status: 'Not Paid',
+                                paid_date: '',
+                                payment_method: '',
+                                payment_details: '',
+                                weight: '',
+                                weight_unit: 'lbs',
+                                compliance_tests: '',
+                                test_sent_date: '',
+                                xray_status: 'Pending',
+                                testing_status: 'Not Sent for testing',
+                                lab: '',
+                                received_date: '',
+                                date_created: new Date().toISOString().split('T')[0],
+                                leaflink_note: leaflinkNote
+                            })
+                        }
+                    }
+
+                    // Save all new records to database
+                    for (const record of newRecords) {
+                        await this.saveRecord(record)
+                    }
+
+                    alert(`Successfully imported ${newRecords.length} records!`)
+                    event.target.value = '' // Reset file input
+
+                } catch (error) {
+                    console.error('Error processing Excel file:', error)
+                    alert('Error processing Excel file. Please try again.')
+                }
+            }
+
+            async updateField(id, field, value) {
+                const record = this.data.find(r => r.id === id)
+                if (record) {
+                    record[field] = value
+                    await this.saveRecord(record)
+                }
+            }
+
+            setupEventListeners() {
+                // Search functionality
+                document.getElementById('search').addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value
+                    this.filterData()
+                    this.renderTable()
+                })
+
+                // Excel upload
+                document.getElementById('excel-upload').addEventListener('change', (e) => {
+                    this.handleExcelUpload(e)
+                })
+            }
+
+            render() {
+                document.getElementById('app').innerHTML = `
+                    <div class="p-6 space-y-6 bg-gray-50 min-h-screen">
+                        <h1 class="text-3xl font-semibold text-gray-900">X-Ray Tracking Dashboard</h1>
+                        
+                        <div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+                            <input
+                                id="search"
+                                type="text"
+                                placeholder="Search by customer or product..."
+                                class="w-full md:max-w-md px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <label class="flex items-center gap-2 cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <span>Upload Excel File</span>
+                                <input id="excel-upload" type="file" accept=".xlsx,.xls" class="hidden" />
+                            </label>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <div class="p-4 overflow-x-auto">
+                                <div id="table-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                `
+                this.renderTable()
+            }
+
+            renderTable() {
+                const tableContainer = document.getElementById('table-container')
+                
+                const tableHTML = `
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 font-medium text-gray-900">Date Created</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Customer</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Invoice To</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">From License</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">To License</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Product</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Invoice</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Metrc Tag</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Weight</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Leaflink Note</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Tests Required</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Test Sent Date</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">X-Ray Status</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Testing Status</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Lab</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Paid</th>
+                                <th class="px-4 py-3 font-medium text-gray-900">Payment Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${this.filteredData.map(row => this.renderRow(row)).join('')}
+                        </tbody>
+                    </table>
+                `
+                
+                tableContainer.innerHTML = tableHTML
+                this.setupTableEventListeners()
+            }
+
+            renderRow(row) {
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="px-4 py-3 text-gray-900">${row.date_created || ''}</td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.customer || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'customer', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.invoice_to || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'invoice_to', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.from_license || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'from_license', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.to_license || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'to_license', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3 text-gray-900">${row.product || ''}</td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.invoice || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'invoice', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.metrc_tag || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'metrc_tag', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-1">
+                                <input type="number" step="0.01" value="${row.weight || ''}" 
+                                    onchange="dashboard.updateField(${row.id}, 'weight', this.value)"
+                                    class="px-2 py-1 border border-gray-300 rounded text-sm w-20 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                <select onchange="dashboard.updateField(${row.id}, 'weight_unit', this.value)"
+                                    class="px-1 py-1 border border-gray-300 rounded text-xs w-16 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="lbs" ${row.weight_unit === 'lbs' ? 'selected' : ''}>lbs</option>
+                                    <option value="grams" ${row.weight_unit === 'grams' ? 'selected' : ''}>g</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-gray-600 text-xs whitespace-pre-line">${row.leaflink_note || ''}</td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.compliance_tests || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'compliance_tests', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-40 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="date" value="${row.test_sent_date || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'test_sent_date', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium ${
+                                row.xray_status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }">${row.xray_status || 'Pending'}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <select onchange="dashboard.updateField(${row.id}, 'testing_status', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Not Sent for testing" ${row.testing_status === 'Not Sent for testing' ? 'selected' : ''}>Not Sent for testing</option>
+                                <option value="Testing in progress" ${row.testing_status === 'Testing in progress' ? 'selected' : ''}>Testing in progress</option>
+                                <option value="Passed testing" ${row.testing_status === 'Passed testing' ? 'selected' : ''}>Passed testing</option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-3">
+                            <input type="text" value="${row.lab || ''}" 
+                                onchange="dashboard.updateField(${row.id}, 'lab', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </td>
+                        <td class="px-4 py-3">
+                            <select onchange="dashboard.updateField(${row.id}, 'paid_status', this.value)"
+                                class="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Not Paid" ${row.paid_status === 'Not Paid' ? 'selected' : ''}>Not Paid</option>
+                                <option value="Paid" ${row.paid_status === 'Paid' ? 'selected' : ''}>Paid</option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex flex-col gap-1">
+                                <input type="date" value="${row.paid_date || ''}" 
+                                    onchange="dashboard.updateField(${row.id}, 'paid_date', this.value)"
+                                    class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                <select onchange="dashboard.updateField(${row.id}, 'payment_method', this.value)"
+                                    class="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Method</option>
+                                    <option value="Check" ${row.payment_method === 'Check' ? 'selected' : ''}>Check</option>
+                                    <option value="Cash" ${row.payment_method === 'Cash' ? 'selected' : ''}>Cash</option>
+                                    <option value="ACH" ${row.payment_method === 'ACH' ? 'selected' : ''}>ACH</option>
+                                    <option value="Wire" ${row.payment_method === 'Wire' ? 'selected' : ''}>Wire</option>
+                                </select>
+                                <input type="text" value="${row.payment_details || ''}" 
+                                    placeholder="Details"
+                                    onchange="dashboard.updateField(${row.id}, 'payment_details', this.value)"
+                                    class="px-2 py-1 border border-gray-300 rounded text-sm w-32 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            </div>
+                        </td>
+                    </tr>
+                `
+            }
+
+            setupTableEventListeners() {
+                // Event listeners are set up via onchange attributes in the HTML
+            }
+        }
+
+        // Initialize the dashboard
+        const dashboard = new TrackingDashboard()
+    </script>
+</body>
+</html>
