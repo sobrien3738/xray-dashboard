@@ -69,17 +69,20 @@ const columnMapping = {
 
 // Process Excel data with direct cell access (matches frontend logic)
 function processExcelDataDirect(worksheet) {
+  console.log('Starting Excel data processing...');
   const records = [];
   let rowIndex = 2; // Start from row 2 (skip header)
   
-  while (true) {
-    // Check if we've reached the end by looking for empty key cells
-    const metrcCell = worksheet[XLSX.utils.encode_cell({ r: rowIndex - 1, c: 0 })];
-    const customerCell = worksheet[XLSX.utils.encode_cell({ r: rowIndex - 1, c: 2 })];
-    
-    if (!metrcCell && !customerCell) {
-      break; // No more data
-    }
+  try {
+    while (true) {
+      // Check if we've reached the end by looking for empty key cells
+      const metrcCell = worksheet[XLSX.utils.encode_cell({ r: rowIndex - 1, c: 0 })];
+      const customerCell = worksheet[XLSX.utils.encode_cell({ r: rowIndex - 1, c: 2 })];
+      
+      if (!metrcCell && !customerCell) {
+        console.log(`Finished processing at row ${rowIndex}, found ${records.length} records`);
+        break; // No more data
+      }
     
     const record = {
       id: Date.now() + Math.random(), // Temporary ID for frontend compatibility
@@ -88,34 +91,41 @@ function processExcelDataDirect(worksheet) {
     };
     
     // Extract data using column mapping
-    for (const [colIndex, fieldName] of Object.entries(columnMapping)) {
-      const cell = worksheet[XLSX.utils.encode_cell({ r: rowIndex - 1, c: parseInt(colIndex) })];
-      let value = cell ? cell.v : '';
-      
-      // Handle special cases
-      if (fieldName === 'metrc_tag_full') {
-        // Extract METRC tag from full text and item name
-        const fullText = String(value || '').trim();
+    try {
+      for (const [colIndex, fieldName] of Object.entries(columnMapping)) {
+        const cell = worksheet[XLSX.utils.encode_cell({ r: rowIndex - 1, c: parseInt(colIndex) })];
+        let value = cell ? cell.v : '';
         
-        // Extract 16-character METRC tag
-        const metrcMatch = fullText.match(/[A-Z0-9]{16}/);
-        record.metrc_tag = metrcMatch ? metrcMatch[0] : '';
-        record.metrc_tag_full = fullText;
-        
-        // Extract item name (everything after METRC tag)
-        if (metrcMatch) {
-          const afterMetrc = fullText.substring(fullText.indexOf(metrcMatch[0]) + 16).trim();
-          record.apex_invoice_note = fullText; // Store full text in apex_invoice_note
+        // Handle special cases
+        if (fieldName === 'metrc_tag_full') {
+          // Extract METRC tag from full text and item name
+          const fullText = String(value || '').trim();
+          
+          // Extract 16-character METRC tag
+          const metrcMatch = fullText.match(/[A-Z0-9]{16}/);
+          record.metrc_tag = metrcMatch ? metrcMatch[0] : '';
+          record.metrc_tag_full = fullText;
+          
+          // Extract item name (everything after METRC tag)
+          if (metrcMatch) {
+            const afterMetrc = fullText.substring(fullText.indexOf(metrcMatch[0]) + 16).trim();
+            record.apex_invoice_note = fullText; // Store full text in apex_invoice_note
+          } else {
+            record.apex_invoice_note = fullText;
+          }
+        } else if (fieldName === 'invoice_weight') {
+          record[fieldName] = parseFloat(value) || 0;
+        } else if (fieldName === 'tests_failed') {
+          record[fieldName] = parseInt(value) || 0;
         } else {
-          record.apex_invoice_note = fullText;
+          record[fieldName] = String(value || '').trim();
         }
-      } else if (fieldName === 'invoice_weight') {
-        record[fieldName] = parseFloat(value) || 0;
-      } else if (fieldName === 'tests_failed') {
-        record[fieldName] = parseInt(value) || 0;
-      } else {
-        record[fieldName] = String(value || '').trim();
       }
+    } catch (error) {
+      console.error(`Error processing row ${rowIndex}:`, error);
+      // Skip this row and continue
+      rowIndex++;
+      continue;
     }
     
     // Only add record if it has required fields
@@ -132,6 +142,12 @@ function processExcelDataDirect(worksheet) {
     }
   }
   
+  } catch (error) {
+    console.error('Error in processExcelDataDirect:', error);
+    throw new Error(`Excel processing failed: ${error.message}`);
+  }
+  
+  console.log(`Excel processing complete: ${records.length} records extracted`);
   return records;
 }
 
@@ -190,19 +206,45 @@ router.post('/excel', (req, res, next) => {
     console.log(`Processing Excel file: ${req.file.originalname}`);
 
     // Read and process Excel file
-    const workbook = XLSX.readFile(filePath);
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-
-    if (!worksheet) {
+    let workbook, sheetName, worksheet;
+    
+    try {
+      console.log('Reading Excel workbook...');
+      workbook = XLSX.readFile(filePath);
+      console.log('Workbook sheets:', workbook.SheetNames);
+      
+      if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+        throw new Error('No worksheets found in Excel file');
+      }
+      
+      sheetName = workbook.SheetNames[0];
+      worksheet = workbook.Sheets[sheetName];
+      console.log('Using worksheet:', sheetName);
+      
+      if (!worksheet) {
+        throw new Error('Selected worksheet is empty or invalid');
+      }
+    } catch (error) {
+      console.error('Error reading Excel file:', error);
       return res.status(400).json({
         success: false,
-        error: 'No valid worksheet found in Excel file'
+        error: `Error reading Excel file: ${error.message}`
       });
     }
 
     // Process data using the same logic as frontend
-    const records = processExcelDataDirect(worksheet);
+    let records;
+    try {
+      console.log('Processing Excel data...');
+      records = processExcelDataDirect(worksheet);
+      console.log(`Processed ${records.length} records from Excel`);
+    } catch (error) {
+      console.error('Error processing Excel data:', error);
+      return res.status(400).json({
+        success: false,
+        error: `Error processing Excel data: ${error.message}`
+      });
+    }
 
     if (records.length === 0) {
       return res.status(400).json({
@@ -214,9 +256,20 @@ router.post('/excel', (req, res, next) => {
     console.log(`Extracted ${records.length} records from Excel file`);
 
     // Save records to database
-    const results = await Record.bulkCreate(records);
-    const successful = results.filter(r => r.success).length;
-    const failed = results.filter(r => !r.success).length;
+    let results, successful, failed;
+    try {
+      console.log('Saving records to database...');
+      results = await Record.bulkCreate(records);
+      successful = results.filter(r => r.success).length;
+      failed = results.filter(r => !r.success).length;
+      console.log(`Database save complete: ${successful} successful, ${failed} failed`);
+    } catch (error) {
+      console.error('Error saving to database:', error);
+      return res.status(500).json({
+        success: false,
+        error: `Database error: ${error.message}`
+      });
+    }
 
     // Log upload to database
     try {
