@@ -7,10 +7,20 @@ const router = express.Router();
 const Record = require('../models/Record');
 const db = require('../models/database');
 
-// Ensure upload directory exists
-const uploadDir = process.env.UPLOAD_DIR || './uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Ensure upload directory exists (use /tmp for cloud deployments)
+const uploadDir = process.env.UPLOAD_DIR || (process.env.NODE_ENV === 'production' ? '/tmp/uploads' : './uploads');
+
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log(`Created upload directory: ${uploadDir}`);
+  }
+} catch (error) {
+  console.error('Error creating upload directory:', error);
+  // Fallback to /tmp
+  if (uploadDir !== '/tmp') {
+    console.log('Falling back to /tmp for uploads');
+  }
 }
 
 // Configure multer for file uploads
@@ -32,13 +42,11 @@ const upload = multer({
     fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB default
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'text/csv'
-    ];
+    // Allow Excel files by extension (more reliable than MIME type)
+    const allowedExtensions = ['.xlsx', '.xls', '.csv'];
+    const fileExtension = path.extname(file.originalname).toLowerCase();
     
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedExtensions.includes(fileExtension)) {
       cb(null, true);
     } else {
       cb(new Error('Only Excel (.xlsx, .xls) and CSV files are allowed'), false);
@@ -128,14 +136,47 @@ function processExcelDataDirect(worksheet) {
 }
 
 // POST /api/upload/excel - Upload and process Excel file
-router.post('/excel', upload.single('file'), async (req, res) => {
+router.post('/excel', (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error('Multer upload error:', err);
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            success: false,
+            error: 'File too large. Maximum size is 10MB.'
+          });
+        }
+        return res.status(400).json({
+          success: false,
+          error: `Upload error: ${err.message}`
+        });
+      }
+      return res.status(400).json({
+        success: false,
+        error: err.message
+      });
+    }
+    next();
+  });
+}, async (req, res) => {
+  console.log('Excel upload request received');
+  
   try {
     if (!req.file) {
+      console.log('No file in request');
       return res.status(400).json({
         success: false,
         error: 'No file uploaded'
       });
     }
+
+    console.log('File received:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    });
 
     const filePath = req.file.path;
     const fileInfo = {
