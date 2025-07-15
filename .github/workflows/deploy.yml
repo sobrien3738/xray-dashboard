@@ -66,3 +66,5 @@ jobs:
         echo "🚀 Render will automatically deploy this update"
         echo "🌐 Your dashboard will be updated at: https://xray-dashboard.onrender.com"
         echo "⏰ Deployment typically takes 2-3 minutes"
+        echo ""
+        echo "Note: This workflow only runs tests. Docker builds are handled by Render."

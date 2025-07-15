@@ -1,0 +1,8 @@
+# Dependabot configuration to disable automatic Docker builds
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
